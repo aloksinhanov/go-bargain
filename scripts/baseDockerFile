@@ -1,0 +1,43 @@
+//start with a go image
+//install go mod
+//install go linter
+//install task
+
+# syntax=docker/dockerfile:1.3
+FROM golang:1.16-alpine
+
+RUN apt-get update && \
+    apt-get install -y \
+        unzip \
+        curl \
+        jq \
+        locales \
+        && \
+	apt-get clean
+
+# /go/bin may be bad choice so install tools into:
+ARG BINDIR=/usr/local/go/bin
+
+# tooling
+
+# linter
+ARG GOLANGCI_VERSION=v1.42.1
+RUN curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${BINDIR} ${GOLANGCI_VERSION}
+
+# go task
+RUN curl -sL https://taskfile.dev/install.sh | env BINDIR=${BINDIR} sh
+
+# swagger
+RUN download_url=$(curl -s https://api.github.com/repos/go-swagger/go-swagger/releases/latest | \
+      jq -r '.assets[] | select(.name | contains("'"$(uname | tr '[:upper:]' '[:lower:]')"'_amd64")) | .browser_download_url') \
+      && curl -o /usr/local/bin/swagger -L -'#' "$download_url" \
+      && chmod +x /usr/local/bin/swagger
+
+WORKDIR /go/src/app
+
+# switch to a non-root user
+RUN groupadd testgroup
+RUN useradd -m -s /bin/bash -G testgroup testuser -u 1500
+USER testuser
+
+

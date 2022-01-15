@@ -1,0 +1,27 @@
+version: "2"
+
+vars:
+  HASH: { sh: git rev-parse --short HEAD }
+
+tasks:
+  build_and_check:
+    deps: []
+    cmds:
+      - task: build
+      - task: lint
+      - task: test
+
+  build:
+    cmds:
+      - CGO_ENABLED=0 go build -o ./bin/application -ldflags "-X main.Version=1.0.0_{{.HASH}}" .
+      - swagger generate spec -o ./swagger.json -m -w .
+  
+  lint:
+    cmds:
+      - golangci-lint run --deadline=5m ./...
+
+  test:
+    cmds:
+      # if running as root, here is a way to run test as non-root to comply postgres requirement
+      # sudo -u testuser `which go` test -v -race ./...
+      - go test -v -race ./...
