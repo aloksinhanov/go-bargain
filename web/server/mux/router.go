@@ -1,14 +1,12 @@
 package mux
 
 import (
-	"aloksinhanov/go-bargain/src/app"
-	"aloksinhanov/go-bargain/src/config"
 	"context"
 	"log"
 	"net/http"
 	"sync"
 
-	"github.com/gorilla/mux"
+	"github.com/aloksinhanov/go-bargain/config"
 )
 
 type Server struct {
