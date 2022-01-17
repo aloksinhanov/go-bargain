@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/aloksinhanov/go-bargain/app"
 	"github.com/aloksinhanov/go-bargain/config"
+	"github.com/gorilla/mux"
 )
 
 type Server struct {
